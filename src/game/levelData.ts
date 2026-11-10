@@ -1,0 +1,298 @@
+import type { DestructibleCoverState, EnemyArchetype, EnemyTacticalState } from './rules';
+
+export const PLAYER_SPAWN = {
+  x: 0,
+  y: 1.65,
+  z: 21.5,
+  yaw: 0, // Facing North (-Z) straight up the open central courtyard toward Bombsite A
+};
+
+export const BOMBSITE_A_POS = {
+  x: 0,
+  z: -16.5,
+};
+
+export function createInitialDestructibleCover(): DestructibleCoverState[] {
+  return [
+    // Central Courtyard Tactical Cover (directly visible in spawn vista, leaving a clear central lane)
+    {
+      id: 'cover-mid-west-concrete',
+      type: 'concrete_barrier',
+      x: -4.2,
+      z: 11.5,
+      width: 2.8,
+      depth: 0.9,
+      height: 1.35,
+      hp: 160,
+      maxHp: 160,
+      state: 'intact',
+    },
+    {
+      id: 'cover-mid-east-crate',
+      type: 'wood_crate',
+      x: 4.4,
+      z: 11.0,
+      width: 1.7,
+      depth: 1.7,
+      height: 1.65,
+      hp: 90,
+      maxHp: 90,
+      state: 'intact',
+    },
+    {
+      id: 'cover-mid-east-barrel',
+      type: 'explosive_barrel',
+      x: 2.7,
+      z: 4.5,
+      width: 1.0,
+      depth: 1.0,
+      height: 1.45,
+      hp: 55,
+      maxHp: 55,
+      state: 'intact',
+    },
+    {
+      id: 'cover-mid-center-crate',
+      type: 'wood_crate',
+      x: 4.2,
+      z: 4.2,
+      width: 1.6,
+      depth: 1.6,
+      height: 1.6,
+      hp: 85,
+      maxHp: 85,
+      state: 'intact',
+    },
+    {
+      id: 'cover-mid-glass',
+      type: 'ballistic_glass',
+      x: -3.6,
+      z: 2.5,
+      width: 2.9,
+      depth: 0.5,
+      height: 1.85,
+      hp: 75,
+      maxHp: 75,
+      state: 'intact',
+    },
+    // Bombsite A Approach Barricades
+    {
+      id: 'cover-site-west-concrete',
+      type: 'concrete_barrier',
+      x: -5.2,
+      z: -8.5,
+      width: 3.1,
+      depth: 0.95,
+      height: 1.4,
+      hp: 170,
+      maxHp: 170,
+      state: 'intact',
+    },
+    {
+      id: 'cover-site-west-barrel',
+      type: 'explosive_barrel',
+      x: -3.1,
+      z: -9.2,
+      width: 1.0,
+      depth: 1.0,
+      height: 1.45,
+      hp: 55,
+      maxHp: 55,
+      state: 'intact',
+    },
+    {
+      id: 'cover-site-east-crate1',
+      type: 'wood_crate',
+      x: 5.0,
+      z: -8.8,
+      width: 1.8,
+      depth: 1.8,
+      height: 1.7,
+      hp: 95,
+      maxHp: 95,
+      state: 'intact',
+    },
+    {
+      id: 'cover-site-east-glass',
+      type: 'ballistic_glass',
+      x: 0.0,
+      z: -10.5,
+      width: 3.0,
+      depth: 0.5,
+      height: 1.8,
+      hp: 70,
+      maxHp: 70,
+      state: 'intact',
+    },
+    // Long A & Bazaar Flank Crates + Barrels
+    {
+      id: 'cover-flank-west-crate',
+      type: 'wood_crate',
+      x: -19.5,
+      z: -2.0,
+      width: 1.8,
+      depth: 1.8,
+      height: 1.7,
+      hp: 90,
+      maxHp: 90,
+      state: 'intact',
+    },
+    {
+      id: 'cover-flank-west-barrel',
+      type: 'explosive_barrel',
+      x: -17.5,
+      z: -2.5,
+      width: 1.0,
+      depth: 1.0,
+      height: 1.45,
+      hp: 55,
+      maxHp: 55,
+      state: 'intact',
+    },
+    {
+      id: 'cover-flank-east-concrete',
+      type: 'concrete_barrier',
+      x: 19.5,
+      z: -3.5,
+      width: 3.0,
+      depth: 0.9,
+      height: 1.4,
+      hp: 160,
+      maxHp: 160,
+      state: 'intact',
+    },
+    {
+      id: 'cover-rear-site-crate',
+      type: 'wood_crate',
+      x: -4.2,
+      z: -18.5,
+      width: 1.75,
+      depth: 1.75,
+      height: 1.65,
+      hp: 95,
+      maxHp: 95,
+      state: 'intact',
+    },
+    {
+      id: 'cover-rear-site-barrel',
+      type: 'explosive_barrel',
+      x: 4.4,
+      z: -17.8,
+      width: 1.0,
+      depth: 1.0,
+      height: 1.45,
+      hp: 55,
+      maxHp: 55,
+      state: 'intact',
+    },
+  ];
+}
+
+export function createWaveEnemies(waveNumber: number): EnemyTacticalState[] {
+  const speedScale = 1 + (waveNumber - 1) * 0.12;
+  const hpScale = 1 + (waveNumber - 1) * 0.15;
+
+  const presets: Array<{
+    archetype: EnemyArchetype;
+    x: number;
+    z: number;
+    hp: number;
+    armor: number;
+    speed: number;
+    minRange: number;
+    maxRange: number;
+    windupDuration: number;
+  }> = [
+    {
+      archetype: 'breacher',
+      x: 2.2,
+      z: 3.2,
+      hp: Math.round(85 * hpScale),
+      armor: 35,
+      speed: 4.4 * speedScale,
+      minRange: 5.5,
+      maxRange: 22,
+      windupDuration: 0.48,
+    },
+    {
+      archetype: 'marksman',
+      x: -4.8,
+      z: -6.5,
+      hp: Math.round(75 * hpScale),
+      armor: 25,
+      speed: 3.6 * speedScale,
+      minRange: 13,
+      maxRange: 34,
+      windupDuration: 0.68,
+    },
+    {
+      archetype: 'heavy_shield',
+      x: 0.4,
+      z: -12.5,
+      hp: Math.round(125 * hpScale),
+      armor: 80,
+      speed: 2.9 * speedScale,
+      minRange: 6.5,
+      maxRange: 24,
+      windupDuration: 0.55,
+    },
+    {
+      archetype: 'saboteur',
+      x: 4.8,
+      z: -15.5,
+      hp: Math.round(95 * hpScale),
+      armor: 50,
+      speed: 4.0 * speedScale,
+      minRange: 8.5,
+      maxRange: 26,
+      windupDuration: 0.52,
+    },
+    {
+      archetype: 'breacher',
+      x: -17.0,
+      z: -4.5,
+      hp: Math.round(85 * hpScale),
+      armor: 40,
+      speed: 4.5 * speedScale,
+      minRange: 5.5,
+      maxRange: 22,
+      windupDuration: 0.48,
+    },
+    {
+      archetype: 'marksman',
+      x: 17.5,
+      z: -5.5,
+      hp: Math.round(80 * hpScale),
+      armor: 30,
+      speed: 3.7 * speedScale,
+      minRange: 13,
+      maxRange: 34,
+      windupDuration: 0.65,
+    },
+  ];
+
+  return presets.map((p, idx) => ({
+    id: `hostile-w${waveNumber}-${idx + 1}`,
+    archetype: p.archetype,
+    x: p.x,
+    z: p.z,
+    vx: 0,
+    vz: 0,
+    rotationY: 0,
+    hp: p.hp,
+    maxHp: p.hp,
+    armor: p.armor,
+    speed: p.speed,
+    preferredRangeMin: p.minRange,
+    preferredRangeMax: p.maxRange,
+    windupTimer: 0,
+    windupDuration: p.windupDuration,
+    // Gentle opening cooldown so player survives first several seconds without instant damage
+    attackCooldown: 1.8 + idx * 0.45,
+    strafeDir: idx % 2 === 0 ? 1 : -1,
+    strafeSwitchTimer: 1.6 + (idx % 3) * 0.7,
+    hitFlashTimer: 0,
+    koTimer: 0,
+    alive: true,
+  }));
+}

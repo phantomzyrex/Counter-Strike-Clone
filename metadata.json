@@ -1,0 +1,6 @@
+{
+  "name": "STRIKE // BREACH: Tactical FPS",
+  "description": "Ultra-realistic 3D tactical Counter-Strike simulator featuring destructible cover environments, ballistic recoil physics, C4 defusal, and procedural PBR visuals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
